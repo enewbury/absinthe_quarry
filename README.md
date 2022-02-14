@@ -1,5 +1,11 @@
 # Quarry.Absinthe
 
+TODO
+ - Convert to plugin where you can configure Repo, and other options
+ - Make two resolvers.
+   - quarry(Post, suffix: "by") (Takes root schema and options, but executes the query directly)
+   - with_quarry_opts(&resolve/3, opts)
+
 [Absinthe](https://hex.pm/packages/absinthe) integration for [Quarry](https://hex.pm/packages/quarry), the data driven ecto query builder.
 
 ## Installation
