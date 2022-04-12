@@ -1,7 +1,7 @@
 defmodule AbsintheQuarry.MixProject do
   use Mix.Project
 
-  @version "0.0.0"
+  @version "0.0.1"
   @source_url "https://github.com/enewbury/absinthe_quarry"
 
   def project do

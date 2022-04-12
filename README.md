@@ -10,8 +10,8 @@ by adding `absinthe_quarry` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:absinthe_quarry, "~> 0.1.0"}
-    {:quarry, "~> 0.3"}
+    {:absinthe_quarry, "~> 0.0.1"}
+    {:quarry, "~> 0.0.1"}
   ]
 end
 ```
