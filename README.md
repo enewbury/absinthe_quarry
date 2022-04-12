@@ -1,67 +1,152 @@
-# Quarry.Absinthe
-
-TODO
- - Convert to plugin where you can configure Repo, and other options
- - Make two resolvers.
-   - quarry(Post, suffix: "by") (Takes root schema and options, but executes the query directly)
-   - with_quarry_opts(&resolve/3, opts)
+# AbsintheQuarry
 
 [Absinthe](https://hex.pm/packages/absinthe) integration for [Quarry](https://hex.pm/packages/quarry), the data driven ecto query builder.
 
 ## Installation
 
-Install from [Hex](https://hex.pm/package/quarry_asbinthe)
-by adding `quarry_absinthe` to your list of dependencies in `mix.exs`:
+Install from [Hex](https://hex.pm/package/absinthe_quarry)
+by adding `absinthe_quarry` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:quarry_absinthe, "~> 0.1.0"}
-    {:quarry, "~> 0.2"}
+    {:absinthe_quarry, "~> 0.1.0"}
+    {:quarry, "~> 0.3"}
   ]
 end
 ```
 While not a direct dependency, this package is made to work with [Quarry](https://hex.pm/packages/quarry), so you'll want to add that as a dependency as well
 
 ## Usage
-In your `Schema` file, import the quarry types, and call the ExtractQuarryOpts middleware before the resolver function. This will analyize the graphQL query and generate paramaters that are compatible with Quarry's API.
+
+### Filtering
+Add a `filter` arg to the field using quarry, and define an input object with any fields of that entity, as well as any association of that entity, and quarry will automatically build the appropriate query.
 
 ```elixir
-defmodule MyApp.Schema
+defmodule App.Schema
   use Absinthe.Schema
+  import AbsintheQuarry.Helpers, only: [quarry: 2]
+  
+  input_object :post_filter do
+    field :title, :string
+    field :author, :author_filter
+  end
 
-  alias Quarry.Absinthe.Middleware.ExtractQuarryOpts
+  input_object :author_filter do
+    field :name, :string
+  end
 
-  import_types Quarry.Absinthe.Schema.FilterTypes
+  object :post do
+    field :title
+  end
 
   query do
-    field :posts, list_of(:post) do
-      middleware ExtractQuarryOpts
-      resolve MyApp.Resolvers.Post.list/2
+    field :posts, list_of(:post), resolve: quarry(App.Post, App.Repo) do
+      arg :filter, :post_filter
     end
   end
 end
 ```
+Now you can make queries like this:
+```graphql
+query {
+  posts(title: "How To", author: {name: "John"}) { title }
+}
+```
+Note: if the `author` association doesn't exist on a `Post` entity, an error will be returned.
+Future iterations of `AbsintheQuarry` will allow setting an `association` parameter to fields to override using the default name.
 
-In your resolver you can now pass the opts to your context function, build a query with Quarry, and exectute it.
+You can also set add a `__` suffix to a filter field to use a different operator than equality. for example, to check for a post whose title starts with "How To" you could use
+```graphql
+query {
+  posts(title__startsWith: "How To") { title }
+}
+```
+
+Check the `quarry` docs for all the available operators
+
+### Sorting
+AbsintheQuarry allows you to add a `sort` argument to the quarried field, to sort by any field on the entity or field on an association
 
 ```elixir
-defmodule MyApp.Resolvers.Post do
-  def list(_, %{context: %{quarry_opts: opts}}) do
-    {:ok, MyApp.Posts.all(opts)}
+defmodule App.Schema
+  use Absinthe.Schema
+  import AbsintheQuarry.Helpers, only: [quarry: 2]
+
+  enum :post_sort do
+    value :title
+    value :author__name
+  end
+
+  object :post do
+    field :title
+  end
+
+  query do
+    field :posts, list_of(:post), resolve: quarry(App.Post, App.Repo) do
+      arg :sort, :post_sort
+    end
   end
 end
 ```
+Now you can make queries sorting by assocated fields and quarry will do the joins as needed
+
+```graphql
+query {
+  posts(sort: AUTHOR__NAME) { title }
+}
+```
+AbsintheQuarry also supports taking a list of fields as sort
 ```elixir
-defmodule MyApp.Posts do
-  def all(opts \\ []) do
-    opts
-    |> Quarry.build()
-    |> Repo.all()
+arg :sort, list_of(:post_sort)
+```
+```graphql
+{ posts(sort: [TITLE, AUTHOR__NAME]) { title } }
+```
+However, because the graphql spec doesn't support input union types, your sort field can only support single, or a list of fields, but not either.  It may be best for now to always make it a list to be flexible.
+Future iterations of AbsintheQuarry will allow setting an `quarry_arg: "sort"` override on the arg, so you could have two sort args, one called `sortBy` and another `sortAll` and AbsinthQuarry would parse them both as a `quarry` "sort" option.
+
+### Loading
+Dataloader is a very powerful and mature library, so there is nothing wrong with using that for handling your batched loading of data.  It does have one drawback though, which is that even for `belongs_to` assocations where it would be more efficient to simply join in that data in the original query, dataloader makes a separate query for each entity type.  This certainly isn't bad, but as long as you are using `quarry` you can get most of the same functionality as dataloader, with the added benefit of fetching belongs_to associations with a preload ahead of time.  Note: has_many associations will be selected with a subquery, since it is generally considered better to make a separate query than load in n*m records into memory.
+
+To denote that you'd like quarry to preload a field, simply add a meta tag `quarry: true`, and `absinthe_quarry` will preload in that field as long as there is a matching association for that field name.  This means, you can also add your own resolver, and the "parent" arg of the resolver will already be ready for you, and you can process it as needed before finally resolving it. Future iterations of `absinthe_quarry` will allow overriing the association name, so you could do things like
+```elixir
+field :author_name, meta: [quarry: true, assoc: author], resolve: fn %{name: name}, _, _ -> name end
+```
+Pull requests welcome ;)
+
+Additionally. on has_many association fields, you can add local filtering/sorting/limits etc just like you do at the top level resolver. So if you wanted to select posts and their comments, 
+but only show the first 2 comments with more than 10 likes, you could do something like:
+```elixir
+input_object :comment_fiter do
+  field :likes__gte, :integer
+end
+
+object :comment do
+  field :message, :string
+end
+
+object :post do
+  field :title
+  field :comments, list_of(:comment), meta: [quarry: true] do
+    arg :filter, :comment_filter
+    arg :limit, :integer
   end
 end
+
+query do
+  field :posts, list_of(:post), resolve: quarry(App.Post, App.Repo)
+end
 ```
-
-
-Docs can be found at [https://hexdocs.pm/quarry_absinthe](https://hexdocs.pm/quarry_absinthe).
+```graphql
+query {
+  posts {
+    title
+    comments(filter: {likes__gte: 10}, limit: 2) {
+      message
+    }
+  }
+}
+```
+Docs can be found at [https://hexdocs.pm/absinthe_quarry](https://hexdocs.pm/absinthe_quarry).
 
