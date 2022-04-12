@@ -105,6 +105,7 @@ arg :sort, list_of(:post_sort)
 ```
 However, because the graphql spec doesn't support input union types, your sort field can only support single, or a list of fields, but not either.  It may be best for now to always make it a list to be flexible.
 Future iterations of AbsintheQuarry will allow setting an `quarry_arg: "sort"` override on the arg, so you could have two sort args, one called `sortBy` and another `sortAll` and AbsinthQuarry would parse them both as a `quarry` "sort" option.
+While `quarry` supports sorting by `asc` or `desc`, this functionality isn't yet implemented in the abinsthe integration. PR's welcome ;)
 
 ### Loading
 Dataloader is a very powerful and mature library, so there is nothing wrong with using that for handling your batched loading of data.  It does have one drawback though, which is that even for `belongs_to` assocations where it would be more efficient to simply join in that data in the original query, dataloader makes a separate query for each entity type.  This certainly isn't bad, but as long as you are using `quarry` you can get most of the same functionality as dataloader, with the added benefit of fetching belongs_to associations with a preload ahead of time.  Note: has_many associations will be selected with a subquery, since it is generally considered better to make a separate query than load in n*m records into memory.
