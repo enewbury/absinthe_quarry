@@ -18,7 +18,7 @@ by adding `absinthe_quarry` to your list of dependencies in `mix.exs`:
 def deps do
   [
     {:absinthe_quarry, "~> 0.0.1"}
-    {:quarry, "~> 0.0.1"}
+    {:quarry, "~> 0.3.1"}
   ]
 end
 ```
