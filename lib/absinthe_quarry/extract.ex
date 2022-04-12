@@ -1,4 +1,6 @@
 defmodule AbsintheQuarry.Extract do
+  @moduledoc false
+
   alias AbsintheQuarry.Middleware
 
   def run(%{definition: field}) do

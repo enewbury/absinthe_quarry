@@ -169,43 +169,33 @@ defmodule AbsintheQuarry.HelpersTest do
 
     query = "{ posts { fake { field } } }"
 
-    assert %{errors: [error]} = Absinthe.run!(query, Schema)
-    assert %{path: ["posts", 0, "fake"]} = error
-  end
+    assert %{errors: [%{message: error}]} = Absinthe.run!(query, Schema)
 
-  test "returns error on only the matching field" do
-    insert(:comment, message: "hi", post: insert(:post, user: insert(:user, name: "John")))
-
-    query = "{ posts { user { name }, fake { field } } }"
-
-    assert %{data: %{"posts" => [%{"user" => %{"name" => "John"}}]}, errors: [error]} =
-             Absinthe.run!(query, Schema)
-
-    assert %{path: ["posts", 0, "fake"]} = error
+    assert "Invalid schema field \"posts.fake\":" <> _ = error
   end
 
   test "returns error on invalid filter selection" do
-    query = """
-    {
-      posts(filter: { fake: {field: \"hi\"}}) {
-        fake { field },
-        comments(filter: { fake: {field: \"hi\"}}) {
-          message
-        }
-      }
-    }
-    """
+    query = "{ posts(filter: { fake: {field: \"hi\"}}) { title } }"
 
-    assert %{errors: [%{path: ["posts"]}]} = Absinthe.run!(query, Schema)
+    assert %{errors: [%{message: error}]} = Absinthe.run!(query, Schema)
+    assert "Invalid schema argument \"filter.fake\" on field \"posts\":" <> _ = error
   end
 
-  test "returns error on filter within has_many" do
+  test "returns error on invalid nested filter" do
+    query = "{ posts { comments(filter: { fake: {field: \"hi\"}}) { message } } }"
+
+    assert %{errors: [%{message: error}]} = Absinthe.run!(query, Schema)
+    assert "Invalid schema argument \"filter.fake\" on field \"posts.comments\":" <> _ = error
+  end
+
+  test "returns error on invalid double nested filter" do
     insert(:comment, message: "hi", post: insert(:post, user: insert(:user, name: "John")))
 
     query = "{ posts { user { comments(filter: {fake: {field: \"val\"}}) { message } }} }"
 
-    assert %{errors: [error]} = Absinthe.run!(query, Schema)
+    assert %{errors: [%{message: error}]} = Absinthe.run!(query, Schema)
 
-    assert %{path: ["posts", 0, "user", "comments"]} = error
+    assert "Invalid schema argument \"filter.fake\" on field \"posts.user.comments\":" <> _ =
+             error
   end
 end
