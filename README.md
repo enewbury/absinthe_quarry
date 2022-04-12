@@ -1,4 +1,11 @@
-# AbsintheQuarry
+# Absinthe Quarry
+
+[![Build Status](https://github.com/enewbury/absinthe_quarry/workflows/test/badge.svg)](https://github.com/enewbury/absinthe_quarry/actions)
+[![Coverage Status](https://coveralls.io/repos/enewbury/absinthe_quarry/badge.svg?branch=main)](https://coveralls.io/r/enewbury/absinthe_quarry?branch=main)
+[![hex.pm version](https://img.shields.io/hexpm/v/absinthe_quarry.svg)](https://hex.pm/packages/absinthe_quarry)
+[![hex.pm license](https://img.shields.io/hexpm/l/absinthe_quarry.svg)](https://github.com/enewbury/absinthe_quarry/blob/main/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/enewbury/absinthe_quarry.svg)](https://github.com/enewbury/absinthe_quarry/commits/main)
+<!-- [![hex.pm downloads](https://img.shields.io/hexpm/dt/absinthe_quarry.svg)](https://hex.pm/packages/absinthe_quarry) -->
 
 [Absinthe](https://hex.pm/packages/absinthe) integration for [Quarry](https://hex.pm/packages/quarry), the data driven ecto query builder.
 
@@ -54,7 +61,7 @@ query {
 }
 ```
 Note: if the `author` association doesn't exist on a `Post` entity, an error will be returned.
-Future iterations of `AbsintheQuarry` will allow setting an `association` parameter to fields to override using the default name.
+Future iterations of `absinthe_quarry` will allow setting an `association` parameter to fields to override using the default name.
 
 You can also set add a `__` suffix to a filter field to use a different operator than equality. for example, to check for a post whose title starts with "How To" you could use
 ```graphql
@@ -66,7 +73,7 @@ query {
 Check the `quarry` docs for all the available operators
 
 ### Sorting
-AbsintheQuarry allows you to add a `sort` argument to the quarried field, to sort by any field on the entity or field on an association
+`absinthe_quarry allows you to add a `sort` argument to the quarried field, to sort by any field on the entity or field on an association
 
 ```elixir
 defmodule App.Schema
@@ -96,7 +103,9 @@ query {
   posts(sort: AUTHOR__NAME) { title }
 }
 ```
-AbsintheQuarry also supports taking a list of fields as sort
+
+`absinthe_quarry` also supports taking a list of fields as sort
+
 ```elixir
 arg :sort, list_of(:post_sort)
 ```
@@ -104,7 +113,7 @@ arg :sort, list_of(:post_sort)
 { posts(sort: [TITLE, AUTHOR__NAME]) { title } }
 ```
 However, because the graphql spec doesn't support input union types, your sort field can only support single, or a list of fields, but not either.  It may be best for now to always make it a list to be flexible.
-Future iterations of AbsintheQuarry will allow setting an `quarry_arg: "sort"` override on the arg, so you could have two sort args, one called `sortBy` and another `sortAll` and AbsinthQuarry would parse them both as a `quarry` "sort" option.
+Future iterations of `absinthe_quarry` will allow setting an `quarry_arg: "sort"` override on the arg, so you could have two sort args, one called `sortBy` and another `sortAll` and AbsinthQuarry would parse them both as a `quarry` "sort" option.
 While `quarry` supports sorting by `asc` or `desc`, this functionality isn't yet implemented in the abinsthe integration. PR's welcome ;)
 
 ### Loading

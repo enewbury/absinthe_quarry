@@ -1,5 +1,5 @@
 defmodule AbsintheQuarry.Extract do
-  alias AbsintheQuarry.Middleware
+  @moduledoc false
 
   def run(%{definition: field}) do
     run(field)
@@ -86,10 +86,4 @@ defmodule AbsintheQuarry.Extract do
   defp split_sort_field(sort) do
     sort |> Atom.to_string() |> String.split("__") |> Enum.map(&String.to_atom/1)
   end
-
-  # defp get_middleware_opts(middleware) do
-  #   for {Middleware.Quarry, opts} <- middleware do
-  #     opts
-  #   end
-  # end
 end
