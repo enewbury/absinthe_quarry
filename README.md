@@ -73,7 +73,7 @@ query {
 Check the `quarry` docs for all the available operators
 
 ### Sorting
-`absinthe_quarry allows you to add a `sort` argument to the quarried field, to sort by any field on the entity or field on an association
+`absinthe_quarry` allows you to add a `sort` argument to the quarried field, to sort by any field on the entity or field on an association
 
 ```elixir
 defmodule App.Schema
