@@ -4,6 +4,7 @@
 <!-- next-header -->
 
 ## [Unreleased] - ReleaseDate
+* Option to override association name
 
 ## [0.0.1] - 2022-4-12
 * Inital implementation

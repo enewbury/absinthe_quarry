@@ -119,11 +119,10 @@ While `quarry` supports sorting by `asc` or `desc`, this functionality isn't yet
 ### Loading
 Dataloader is a very powerful and mature library, so there is nothing wrong with using that for handling your batched loading of data.  It does have one drawback though, which is that even for `belongs_to` assocations where it would be more efficient to simply join in that data in the original query, dataloader makes a separate query for each entity type.  This certainly isn't bad, but as long as you are using `quarry` you can get most of the same functionality as dataloader, with the added benefit of fetching belongs_to associations with a preload ahead of time.  Note: has_many associations will be selected with a subquery, since it is generally considered better to make a separate query than load in n*m records into memory.
 
-To denote that you'd like quarry to preload a field, simply add a meta tag `quarry: true`, and `absinthe_quarry` will preload in that field as long as there is a matching association for that field name.  This means, you can also add your own resolver, and the "parent" arg of the resolver will already be ready for you, and you can process it as needed before finally resolving it. Future iterations of `absinthe_quarry` will allow overriing the association name, so you could do things like
+To denote that you'd like quarry to preload a field, simply add a meta tag `quarry: true`, and `absinthe_quarry` will preload in that field as long as there is a matching association for that field name.  This means, you can also add your own resolver, and the "parent" arg of the resolver will already be ready for you, and you can process it as needed before finally resolving it. You can also override the association name, so you could do something like:
 ```elixir
-field :author_name, meta: [quarry: true, assoc: author], resolve: fn %{name: name}, _, _ -> name end
+field :author_name, meta: [quarry: [assoc: :author]], resolve: fn %{name: name}, _, _ -> name end
 ```
-Pull requests welcome ;)
 
 Additionally. on has_many association fields, you can add local filtering/sorting/limits etc just like you do at the top level resolver. So if you wanted to select posts and their comments, 
 but only show the first 2 comments with more than 10 likes, you could do something like:

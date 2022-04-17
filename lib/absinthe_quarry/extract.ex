@@ -46,10 +46,14 @@ defmodule AbsintheQuarry.Extract do
   defp extract_loads(fields) do
     fields
     |> Enum.filter(&should_load?/1)
-    |> Enum.map(fn field ->
-      %{schema_node: %{identifier: field_name}} = field
-      {field_name, extract_child(field)}
-    end)
+    |> Enum.map(&{extract_assoc_name(&1), extract_child(&1)})
+  end
+
+  defp extract_assoc_name(%{schema_node: node}) do
+    case Absinthe.Type.meta(node, :quarry) do
+      conf when is_list(conf) -> Keyword.get(conf, :assoc, node.identifier)
+      _ -> node.identifier
+    end
   end
 
   defp extract_child(%{argument_data: args, selections: selections}) when map_size(args) == 0 do

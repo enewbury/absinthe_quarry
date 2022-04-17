@@ -30,6 +30,7 @@ defmodule AbsintheQuarry.ExtractTest do
       field :field1, :string
 
       field :child, :child, meta: [quarry: true]
+      field :child2, :child, meta: [quarry: [assoc: :child]]
 
       field :children, list_of(:child), meta: [quarry: true] do
         arg :filter, :child_filter
@@ -114,5 +115,11 @@ defmodule AbsintheQuarry.ExtractTest do
     query = "query { parents { children(filter: { field1: \"test\"}) { field1 } } }"
     assert {:ok, %{data: _}} = Absinthe.run(query, Schema)
     assert_receive load: [children: [filter: %{field1: "test"}]]
+  end
+
+  test "can alias a field to a different association" do
+    query = "query { parents { child2 { field1 } } }"
+    assert {:ok, %{data: _}} = Absinthe.run(query, Schema)
+    assert_receive load: [child: []]
   end
 end
