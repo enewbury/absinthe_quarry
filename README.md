@@ -23,6 +23,10 @@ def deps do
 end
 ```
 While not a direct dependency, this package is made to work with [Quarry](https://hex.pm/packages/quarry), so you'll want to add that as a dependency as well
+## Background
+Check out this blog post for the 10,000ft view of why and how this package is useful for building upon where dataloader leaves off.
+
+https://blog.testdouble.com/posts/2022-04-26-graphql-made-easy-elixir/
 
 ## Usage
 
