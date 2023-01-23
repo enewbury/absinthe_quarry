@@ -7,7 +7,7 @@
 * Option to override association name
 
 ## [0.0.1] - 2022-4-12
-* Inital implementation
+* Initial implementation
 
 <!-- next-url -->
 [Unreleased]: https://github.com/enewbury/quarry/compare/v0.0.1...HEAD
