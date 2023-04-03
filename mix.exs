@@ -38,7 +38,7 @@ defmodule AbsintheQuarry.MixProject do
       {:absinthe, "~> 1.5", only: [:dev, :test]},
       {:quarry, "~> 0.3", only: [:dev, :test]},
       {:ex_doc, "~> 0.24", only: :dev, runtime: false},
-      {:version_release, "~> 0.3.0", only: :dev, runtime: false},
+      {:version_release, "~> 0.4.0", only: :dev, runtime: false},
       {:ex_machina, "~> 2.3", only: [:test]},
       {:excoveralls, "~> 0.10", only: :test},
       {:ecto_sqlite3, "~> 0.7", only: [:dev, :test]}
