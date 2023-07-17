@@ -35,7 +35,7 @@ defmodule AbsintheQuarry.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:absinthe, "~> 1.5", only: [:dev, :test]},
+      {:absinthe, "~> 1.5", only: [:dev, :test], path: "../../absinthe-graphql/absinthe"},
       {:quarry, "~> 0.3", only: [:dev, :test]},
       {:ex_doc, "~> 0.24", only: :dev, runtime: false},
       {:version_release, "~> 0.1.0", only: :dev, runtime: false},
