@@ -1,7 +1,7 @@
-use Mix.Config
+import Config
 
 # set to :debug to view SQL queries in logs
-config :logger, level: :warn
+config :logger, level: :warning
 
 config :absinthe_quarry,
   ecto_repos: [AbsintheQuarry.Repo]
